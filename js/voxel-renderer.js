@@ -109,7 +109,7 @@ export class VoxelRenderer {
 
     // Create instanced mesh
     const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshPhongMaterial({ vertexColors: true });
+    const material = new THREE.MeshPhongMaterial();
     this.instancedMesh = new THREE.InstancedMesh(geometry, material, solidCount);
 
     // Set up per-instance colors
