@@ -78,6 +78,10 @@ class App {
     // Canvas
     this.canvasContainer = document.getElementById('canvas-container');
     this.canvasPlaceholder = document.getElementById('canvas-placeholder');
+
+    // Demo
+    this.demoBtn = document.getElementById('demo-btn');
+    this.demoModelSelect = document.getElementById('demo-model-select');
   }
 
   _setupEventListeners() {
@@ -100,6 +104,9 @@ class App {
         this._startPipeline();
       }
     });
+
+    // Demo button
+    this.demoBtn.addEventListener('click', () => this._startDemo());
   }
 
   // --- State Management ---
@@ -120,6 +127,7 @@ class App {
     this.imageTo3DSelect.disabled = busy;
     this.textToImageSelect.disabled = busy;
     this.generateBtn.disabled = busy;
+    this.demoBtn.disabled = busy;
 
     // Show/hide progress
     this.progressSection.classList.toggle('hidden', idle || error);
@@ -372,6 +380,43 @@ class App {
       this.voxelData.resolution
     );
     this._setStageProgress(1);
+  }
+
+  // --- Demo Mode ---
+
+  async _startDemo() {
+    const modelUrl = this.demoModelSelect.value;
+    this.errorSection.classList.add('hidden');
+
+    try {
+      // Skip stages 1 & 2 — go straight to loading the GLB
+      this._setState(State.GENERATING_MESH);
+      this.stageLabel.textContent = 'Loading demo 3D model...';
+      this._setStageProgress(0.5);
+      this._setOverallProgress(25);
+
+      // Fetch the demo GLB file
+      const response = await fetch(modelUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to load demo model: ${response.status}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      this._setStageProgress(1);
+
+      // Parse GLB
+      await this._parseGLB(arrayBuffer);
+      this._setOverallProgress(50);
+
+      // Stage 3: Voxelize
+      await this._voxelizeMesh();
+
+      // Stage 4: Render
+      this._renderVoxels();
+
+      this._setState(State.COMPLETE);
+    } catch (err) {
+      this._showError(err.message);
+    }
   }
 
   // --- Re-voxelize on slider change ---

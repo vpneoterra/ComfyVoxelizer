@@ -213,6 +213,21 @@ select {
   background: #dc2626;
 }
 
+.btn-demo {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  width: 100%;
+}
+
+.btn-demo:hover:not(:disabled) {
+  background: linear-gradient(135deg, #818cf8, #c084fc);
+}
+
+.demo-section {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 /* Button Row */
 .btn-row {
   display: flex;

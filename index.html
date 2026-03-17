@@ -75,6 +75,17 @@
       <!-- Generate Button -->
       <button class="btn btn-primary" id="generate-btn">Generate</button>
 
+      <!-- Demo Section -->
+      <div class="section demo-section">
+        <span class="section-label">Demo Mode (No ComfyUI needed)</span>
+        <select id="demo-model-select">
+          <option value="assets/demo-sphere.glb">Sphere (Tennis Ball)</option>
+          <option value="assets/demo-torus.glb">Torus (Donut)</option>
+          <option value="assets/demo-box.glb">Box (Chest)</option>
+        </select>
+        <button class="btn btn-demo" id="demo-btn">Try Demo</button>
+      </div>
+
       <!-- Progress Section -->
       <div class="section progress-section hidden" id="progress-section">
         <span class="section-label">Progress</span>
