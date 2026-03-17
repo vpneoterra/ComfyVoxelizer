@@ -3,6 +3,7 @@
  * Extracts geometry from Three.js GLTF scene, packages as transferable arrays,
  * and communicates with the voxelizer Web Worker.
  */
+import * as THREE from 'three';
 
 export class Voxelizer {
   constructor() {
@@ -162,11 +163,18 @@ export class Voxelizer {
 
       const { positions, indices, colors, uvs, textureData, textureWidth, textureHeight } = geometryData;
 
-      // Build transferable list
-      const transferables = [positions.buffer, indices.buffer];
-      if (colors) transferables.push(colors.buffer);
-      if (uvs) transferables.push(uvs.buffer);
-      if (textureData) transferables.push(textureData.buffer);
+      // Clone arrays so originals remain usable for re-voxelization (slider changes)
+      const posClone = new Float32Array(positions);
+      const idxClone = new Uint32Array(indices);
+      const colClone = colors ? new Float32Array(colors) : null;
+      const uvClone = uvs ? new Float32Array(uvs) : null;
+      const texClone = textureData ? new Uint8Array(textureData) : null;
+
+      // Build transferable list from clones
+      const transferables = [posClone.buffer, idxClone.buffer];
+      if (colClone) transferables.push(colClone.buffer);
+      if (uvClone) transferables.push(uvClone.buffer);
+      if (texClone) transferables.push(texClone.buffer);
 
       this.worker.onmessage = (e) => {
         const { type, data } = e.data;
@@ -194,11 +202,11 @@ export class Voxelizer {
       this.worker.postMessage({
         type: 'voxelize',
         data: {
-          positions,
-          indices,
-          colors,
-          uvs,
-          textureData,
+          positions: posClone,
+          indices: idxClone,
+          colors: colClone,
+          uvs: uvClone,
+          textureData: texClone,
           textureWidth,
           textureHeight,
           resolution,

@@ -8,6 +8,7 @@ import { WorkflowBuilder } from './workflow-builder.js';
 import { Voxelizer } from './voxelizer.js';
 import { VoxelRenderer } from './voxel-renderer.js';
 import { Exporter } from './exporter.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Application states
 const State = {
@@ -76,6 +77,7 @@ class App {
 
     // Canvas
     this.canvasContainer = document.getElementById('canvas-container');
+    this.canvasPlaceholder = document.getElementById('canvas-placeholder');
   }
 
   _setupEventListeners() {
@@ -317,7 +319,7 @@ class App {
 
   async _parseGLB(arrayBuffer) {
     return new Promise((resolve, reject) => {
-      const loader = new THREE.GLTFLoader();
+      const loader = new GLTFLoader();
       loader.parse(arrayBuffer, '', (gltf) => {
         this.gltfScene = gltf.scene;
         try {
@@ -347,6 +349,11 @@ class App {
 
   _renderVoxels() {
     this._setState(State.RENDERING);
+
+    // Hide placeholder
+    if (this.canvasPlaceholder) {
+      this.canvasPlaceholder.style.display = 'none';
+    }
 
     if (!this.renderer) {
       this.renderer = new VoxelRenderer(this.canvasContainer);
