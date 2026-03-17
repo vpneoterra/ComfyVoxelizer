@@ -113,6 +113,7 @@ function voxelize(data) {
 
   const voxels = new Uint8Array(N * N * N);
   const colorsRGB = new Uint8Array(N * N * N * 3);
+  const colored = new Uint8Array(N * N * N); // Track which voxels have been assigned a color
 
   // Ray-casting along Y axis (vertical columns)
   // For each (x, z) column, cast a ray downward and use even-odd rule
@@ -167,7 +168,7 @@ function voxelize(data) {
         const iy = Math.min(N - 1, Math.max(0, Math.floor((y - minY) / cellY)));
         const voxelIdx = ix + iy * N + iz * N * N;
 
-        if (voxels[voxelIdx]) {
+        if (voxels[voxelIdx] && !colored[voxelIdx]) {
           sampleColor(
             colorsRGB, voxelIdx,
             rayX, y, rayZ,
@@ -175,32 +176,34 @@ function voxelize(data) {
             triangles, triColors, triUVs,
             textureData, textureWidth, textureHeight
           );
+          colored[voxelIdx] = 1;
         }
       }
 
-      // Color interior voxels by nearest surface
+      // Color interior voxels by nearest surface intersection
       for (let iy = 0; iy < N; iy++) {
         const voxelIdx = ix + iy * N + iz * N * N;
-        if (voxels[voxelIdx] && colorsRGB[voxelIdx * 3] === 0 && colorsRGB[voxelIdx * 3 + 1] === 0 && colorsRGB[voxelIdx * 3 + 2] === 0) {
-          // Find nearest colored voxel in same column
+        if (voxels[voxelIdx] && !colored[voxelIdx]) {
+          // Find nearest surface intersection in this column
           let nearestDist = Infinity;
-          let nearestColor = null;
+          let nearestTri = null;
           for (const { y, triIndex } of intersections) {
             const dist = Math.abs((minY + (iy + 0.5) * cellY) - y);
             if (dist < nearestDist) {
               nearestDist = dist;
-              nearestColor = triIndex;
+              nearestTri = triIndex;
             }
           }
-          if (nearestColor !== null) {
+          if (nearestTri !== null) {
             const vy = minY + (iy + 0.5) * cellY;
             sampleColor(
               colorsRGB, voxelIdx,
               rayX, vy, rayZ,
-              nearestColor,
+              nearestTri,
               triangles, triColors, triUVs,
               textureData, textureWidth, textureHeight
             );
+            colored[voxelIdx] = 1;
           }
         }
       }

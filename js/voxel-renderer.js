@@ -39,13 +39,17 @@ export class VoxelRenderer {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.container.appendChild(this.renderer.domElement);
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040);
+    // Lighting — bright enough to see voxel colors clearly
+    const ambientLight = new THREE.AmbientLight(0xcccccc);
     this.scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight.position.set(1, 1, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(1, 2, 1.5);
     this.scene.add(directionalLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    fillLight.position.set(-1, 0.5, -1);
+    this.scene.add(fillLight);
 
     // Orbit Controls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
