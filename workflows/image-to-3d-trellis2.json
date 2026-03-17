@@ -1,0 +1,48 @@
+{
+  "1": {
+    "class_type": "Trellis2LoadModel",
+    "inputs": {
+      "model_name": "TRELLIS-image-large"
+    }
+  },
+  "2": {
+    "class_type": "Trellis2LoadImageWithTransparency",
+    "inputs": {
+      "image": "{image_filename}"
+    }
+  },
+  "3": {
+    "class_type": "Trellis2PreProcessImage",
+    "inputs": {
+      "image": ["2", 0]
+    }
+  },
+  "4": {
+    "class_type": "Trellis2MeshWithVoxelGenerator",
+    "inputs": {
+      "pipeline": ["1", 0],
+      "image": ["3", 0],
+      "seed": 0,
+      "ss_guidance_strength": 7.5,
+      "ss_sampling_steps": 12,
+      "slat_guidance_strength": 3.0,
+      "slat_sampling_steps": 12
+    }
+  },
+  "5": {
+    "class_type": "Trellis2PostProcessAndUnWrapAndRasterizer",
+    "inputs": {
+      "mesh": ["4", 0],
+      "simplify": 0.95,
+      "texture_size": 1024
+    }
+  },
+  "6": {
+    "class_type": "Trellis2ExportMesh",
+    "inputs": {
+      "mesh": ["5", 0],
+      "filename_prefix": "ComfyVoxelizer3D",
+      "format": "glb"
+    }
+  }
+}

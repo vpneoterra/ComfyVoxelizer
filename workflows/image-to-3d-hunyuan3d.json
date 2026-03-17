@@ -1,0 +1,33 @@
+{
+  "1": {
+    "class_type": "Hy3DModelLoader",
+    "inputs": {
+      "model_name": "hunyuan3d-2.1"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "{image_filename}"
+    }
+  },
+  "3": {
+    "class_type": "Hy3DConditioning",
+    "inputs": {
+      "pipeline": ["1", 0],
+      "image": ["2", 0],
+      "seed": 0,
+      "steps": 30,
+      "guidance_scale": 5.5,
+      "octree_resolution": 256
+    }
+  },
+  "4": {
+    "class_type": "Hy3DExportMesh",
+    "inputs": {
+      "mesh": ["3", 0],
+      "filename_prefix": "ComfyVoxelizer3D",
+      "format": "glb"
+    }
+  }
+}

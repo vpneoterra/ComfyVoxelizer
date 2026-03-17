@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ComfyVoxelizer</title>
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Three.js + GLTFLoader + OrbitControls via importmap for ES modules in app code,
+       plus global script tags for non-module access (voxelizer geometry extraction) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- Load Three.js globally for non-module scripts and worker-independent code -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Left Panel: Controls -->
+    <div class="control-panel">
+      <!-- Title -->
+      <div class="app-title">
+        <h1>ComfyVoxelizer</h1>
+        <span class="version">v1.0</span>
+      </div>
+
+      <!-- Connection -->
+      <div class="section">
+        <span class="section-label">ComfyUI Server</span>
+        <div class="server-url-row">
+          <input type="text" id="server-url" value="http://127.0.0.1:8188" placeholder="Server URL">
+          <button class="btn btn-secondary btn-small" id="connect-btn">Connect</button>
+        </div>
+        <div class="connection-status">
+          <div class="dot disconnected" id="connection-dot"></div>
+          <span id="connection-text">Disconnected</span>
+        </div>
+      </div>
+
+      <!-- Prompt -->
+      <div class="section">
+        <div style="display:flex; align-items:center;">
+          <span class="section-label">Text Prompt</span>
+          <span class="help-tooltip">?
+            <span class="tooltip-content">
+              Describe a single, isolated object on a white/neutral background. Be specific: "a medieval wooden treasure chest with iron bands." Mention viewing angle: "front view", "isometric view." Add material: "matte ceramic", "polished metal."
+            </span>
+          </span>
+        </div>
+        <textarea id="prompt-input" rows="4" placeholder="Describe your 3D object... (Ctrl+Enter to generate)"></textarea>
+      </div>
+
+      <!-- Model Selection -->
+      <div class="section">
+        <span class="section-label">Text-to-Image Model</span>
+        <select id="text-to-image-model">
+          <option value="flux">FLUX</option>
+          <option value="sdxl">SDXL</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <span class="section-label">Image-to-3D Model</span>
+        <select id="image-to-3d-model">
+          <option value="trellis2">TRELLIS 2</option>
+          <option value="hunyuan3d">Hunyuan3D 2.1</option>
+        </select>
+      </div>
+
+      <!-- Generate Button -->
+      <button class="btn btn-primary" id="generate-btn" disabled>Generate</button>
+
+      <!-- Progress Section -->
+      <div class="section progress-section hidden" id="progress-section">
+        <span class="section-label">Progress</span>
+        <span class="stage-label" id="stage-label">Idle</span>
+        <div class="progress-labels">
+          <span>Stage</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="stage-progress-bar"></div>
+        </div>
+        <div class="progress-labels">
+          <span>Overall</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar overall" id="overall-progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- Image Preview -->
+      <div class="section preview-section hidden" id="preview-section">
+        <span class="section-label">Generated Image</span>
+        <img id="preview-image" class="preview-image" alt="Generated image preview">
+      </div>
+
+      <!-- Voxel Controls -->
+      <div class="section hidden" id="voxel-controls">
+        <span class="section-label">Voxel Resolution</span>
+        <div class="slider-row">
+          <input type="range" id="resolution-slider" min="16" max="128" value="64" step="1">
+          <span class="slider-value" id="resolution-value">64</span>
+        </div>
+
+        <span class="section-label" style="margin-top: 8px;">Export</span>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-small" id="export-vox-btn">Export .vox</button>
+          <button class="btn btn-secondary btn-small" id="export-json-btn">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- Error Section -->
+      <div class="section error-section hidden" id="error-section">
+        <span class="error-message" id="error-message"></span>
+        <button class="btn btn-error btn-small" id="retry-btn">Retry</button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Three.js Canvas -->
+    <div class="canvas-panel">
+      <div id="canvas-container">
+        <div class="canvas-placeholder" id="canvas-placeholder">
+          <div class="icon">&#9641;</div>
+          <p>Enter a prompt and click Generate to create voxel art</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
