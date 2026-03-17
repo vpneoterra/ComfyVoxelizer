@@ -119,7 +119,7 @@ class App {
     this.promptInput.disabled = busy;
     this.imageTo3DSelect.disabled = busy;
     this.textToImageSelect.disabled = busy;
-    this.generateBtn.disabled = busy || !this.client.connected;
+    this.generateBtn.disabled = busy;
 
     // Show/hide progress
     this.progressSection.classList.toggle('hidden', idle || error);
@@ -184,11 +184,9 @@ class App {
         if (data.connected) {
           this.connectionDot.className = 'dot connected';
           this.connectionText.textContent = 'Connected';
-          this.generateBtn.disabled = this.state !== State.IDLE && this.state !== State.COMPLETE;
         } else {
           this.connectionDot.className = 'dot disconnected';
           this.connectionText.textContent = 'Disconnected';
-          this.generateBtn.disabled = true;
         }
       });
 
@@ -224,8 +222,17 @@ class App {
     }
 
     if (!this.client.connected) {
-      this._showError('Not connected to ComfyUI. Check the server URL and try reconnecting.');
-      return;
+      // Try to connect first before giving up
+      try {
+        this.connectionDot.className = 'dot connecting';
+        this.connectionText.textContent = 'Connecting...';
+        await this.client.connectWebSocket();
+      } catch (err) {
+        this.connectionDot.className = 'dot disconnected';
+        this.connectionText.textContent = 'Disconnected';
+        this._showError('Cannot connect to ComfyUI at ' + this.client.serverUrl + '. Make sure ComfyUI is running and the server URL is correct.');
+        return;
+      }
     }
 
     this.previewSection.classList.add('hidden');
